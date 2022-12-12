@@ -1,0 +1,56 @@
+name: Gingersnap E2E
+
+on:
+  workflow_call:
+
+jobs:
+  db-syncer-image:
+    uses: ryanemerson/db-syncer/.github/workflows/build-image.yaml@gh_action_image_build
+
+  e2e:
+    needs: db-syncer-image
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Checkout Operator PR Branch
+      if: ${{ contains(github.repository, 'operator') }}
+      uses: actions/checkout@v2
+      with:
+        ref: ${{ github.ref }}
+        path: operator
+
+    - name: Checkout Operator Main Branch
+      if: ${{ !contains(github.repository, 'operator') }}
+      uses: actions/checkout@v2
+      with:
+        repository: gingersnap-project/operator
+        path: operator
+
+    - name: Install Kind
+      run: go install sigs.k8s.io/kind@v0.14.0
+
+    - name: Create Kind Cluster
+      run: |
+        cd operator
+        make operator-sdk
+        ./hack/kind.sh
+
+    - name: Download Component Images
+      uses: actions/download-artifact@v3
+
+    - name: Load Component Images
+      run: |
+        docker load --input ${{ needs.db-syncer-image.outputs.image-name }}/${{ needs.db-syncer-image.outputs.image-name }}.tar
+        kind load docker-image quay.io/gingersnap/db-syncer
+
+    - name: Build and Deploy Operator with OLM
+      run: |
+        cd operator
+        make catalog-source catalog-install
+        ./hack/create-subscription.sh
+        # First check deployment exists to prevent wait returning not found error
+        i=1;until kubectl -n olm get deployment/gingersnap-operator-controller-manager || (( $i == 60 )) ; do ((i=i+1)); sleep 10; done
+        kubectl -n operators wait --timeout=60s --for=condition=available deployment/gingersnap-operator-controller-manager
+
+    # TODO
+    # Run E2E Tests
