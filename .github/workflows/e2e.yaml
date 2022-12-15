@@ -32,7 +32,8 @@ jobs:
     - name: Create Kind Cluster
       run: |
         cd operator
-        make operator-sdk
+        make oc operator-sdk
+        echo "$GITHUB_WORKSPACE/bin" >> $GITHUB_PATH
         ./hack/kind.sh
 
     - name: Download Component Images
@@ -55,7 +56,7 @@ jobs:
     - name: Build and push Test Image to local cluster
       uses: docker/build-push-action@v3
       with:
-        file: src/test/docker/Dockerfile.jbm
+        file: src/test/docker/Dockerfile.jvm
         push: true
         tags: localhost:5000/test
 
@@ -72,7 +73,18 @@ jobs:
         kubectl wait --for=condition=ready pod/report-reader
         kubectl cp report-reader:/test-output results
 
-    - name: Test Logs
+    - name: Inspect Cluster
+      if: failure()
+      run: oc adm inspect ns
+
+    - name: Upload Inspect Artifacts
+      uses: actions/upload-artifact@v3
+      if: failure()
+      with:
+        name: oc-inspect
+        path: inspect.*
+
+    - name: Upload Test Logs
       uses: actions/upload-artifact@v3
       if: success() || failure()
       with:
