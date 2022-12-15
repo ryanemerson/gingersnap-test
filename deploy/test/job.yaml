@@ -1,0 +1,29 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: test
+spec:
+  template:
+    spec:
+      containers:
+        - name: test
+          image: localhost:5000/test
+          volumeMounts:
+            - name: reports
+              mountPath: /deployments/test-output
+#          command:
+#            - "/bin/bash"
+#            - "-c"
+#            - "./mvnw test; EXIT=$?; touch /tmp/complete; exit $EXIT"
+#        - name: log
+#          image: registry.access.redhat.com/ubi9/ubi-micro
+#          command:
+#            - "/bin/bash"
+#            - "-c"
+#            - "while [ ! -f /tmp/complete ]; do sleep 1; done; cat target/surefire-reports/TEST*.xml"
+      restartPolicy: Never
+      volumes:
+        - name: reports
+          persistentVolumeClaim:
+            claimName: surefire-reports
+  backoffLimit: 1

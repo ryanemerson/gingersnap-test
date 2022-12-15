@@ -1,4 +1,4 @@
-name: Gingersnap E2E
+name: E2E
 
 on:
   workflow_call:
@@ -52,5 +52,29 @@ jobs:
         i=1;until kubectl -n olm get deployment/gingersnap-operator-controller-manager || (( $i == 60 )) ; do ((i=i+1)); sleep 10; done
         kubectl -n operators wait --timeout=60s --for=condition=available deployment/gingersnap-operator-controller-manager
 
-    # TODO
-    # Run E2E Tests
+    - name: Build and push Test Image to local cluster
+      uses: docker/build-push-action@v3
+      with:
+        file: src/test/docker/Dockerfile.jbm
+        push: true
+        tags: localhost:5000/test
+
+    - name: Execute Tests
+      run: |
+        kubectl kustomize deploy/test | kubectl apply -f -
+        kubectl wait --for=condition=complete --timeout=60s job/test
+
+    - name: Retrieve Test Results
+      if: success() || failure()
+      run: |
+        mkdir results
+        kubectl kustomize deploy/reader | kubectl apply -f -
+        kubectl wait --for=condition=ready pod/report-reader
+        kubectl cp report-reader:/test-output results
+
+    - name: Test Logs
+      uses: actions/upload-artifact@v3
+      if: success() || failure()
+      with:
+        name: test-results
+        path: "results/TEST-*.xml"
