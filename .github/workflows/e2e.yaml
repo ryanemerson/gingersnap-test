@@ -12,6 +12,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
+    - name: Checkout Test Code
+      uses: actions/checkout@v2
+      with:
+        ref: gingersnap-project/test
+        path: test
+
     - name: Checkout Operator PR Branch
       if: ${{ contains(github.repository, 'operator') }}
       uses: actions/checkout@v2
@@ -56,7 +62,7 @@ jobs:
     - name: Build and push Test Image to local cluster
       uses: docker/build-push-action@v3
       with:
-        file: src/test/docker/Dockerfile.jvm
+        file: test/src/test/docker/Dockerfile.jvm
         push: true
         tags: localhost:5000/test
 
