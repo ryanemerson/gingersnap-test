@@ -15,7 +15,7 @@ jobs:
     - name: Checkout Test Code
       uses: actions/checkout@v2
       with:
-        ref: ryanemerson/gingersnap-test
+        repository: ryanemerson/gingersnap-test
         path: test
 
     - name: Checkout Operator PR Branch
