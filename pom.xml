@@ -13,9 +13,16 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <skipITs>true</skipITs>
     <surefire-plugin.version>3.0.0-M7</surefire-plugin.version>
+    <version.fabric8>6.2.0</version.fabric8>
     <version.jupiter>5.9.1</version.jupiter>
   </properties>
   <dependencies>
+    <dependency>
+      <groupId>io.fabric8</groupId>
+      <artifactId>kubernetes-client</artifactId>
+      <version>${version.fabric8}</version>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-engine</artifactId>

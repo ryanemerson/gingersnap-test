@@ -1,0 +1,9 @@
+apiVersion: gingersnap-project.io/v1alpha1
+kind: Cache
+metadata:
+  name: cache-sample
+spec:
+  dataSource:
+    dbType: MYSQL_8
+    secretRef:
+      name: db-credential-secret
