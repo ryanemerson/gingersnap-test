@@ -62,7 +62,7 @@ jobs:
     - name: Build and push Test Image to local cluster
       uses: docker/build-push-action@v3
       with:
-        context: test
+        context: ./test
         file: src/test/docker/Dockerfile.jvm
         push: true
         tags: localhost:5000/test
