@@ -1,10 +1,9 @@
 FROM registry.access.redhat.com/ubi8/openjdk-17:1.14 as base
 WORKDIR /deployments
-COPY .mvn/ .mvn
-COPY mvnw pom.xml ./
-RUN ./mvnw -B dependency:resolve -Dclassifier=test
-RUN ./mvnw -B dependency:resolve-plugins -Dclassifier=test
+COPY pom.xml ./
+RUN mvn -B dependency:resolve -Dclassifier=test
+RUN mvn -B dependency:resolve-plugins -Dclassifier=test
 COPY src ./src
 
 FROM base as test
-CMD ["./mvnw", "test"]
+CMD ["mvn", "test"]
