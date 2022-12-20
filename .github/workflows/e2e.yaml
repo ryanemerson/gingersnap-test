@@ -69,14 +69,14 @@ jobs:
 
     - name: Execute Tests
       run: |
-        kubectl kustomize deploy/test | kubectl apply -f -
+        kubectl kustomize test/deploy/test | kubectl apply -f -
         kubectl wait --for=condition=complete --timeout=60s job/test
 
     - name: Retrieve Test Results
       if: success() || failure()
       run: |
         mkdir results
-        kubectl kustomize deploy/reader | kubectl apply -f -
+        kubectl kustomize test/deploy/reader | kubectl apply -f -
         kubectl wait --for=condition=ready pod/report-reader
         kubectl cp report-reader:/test-output results
 
