@@ -17,8 +17,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 @ExtendWith(KubernetesClientResolver.class)
 public class ExampleTest {
 
-    // TODO have Namespace per DB and per Test
-    // After each test, clear test namespace content and reset DB state
     static final String DB_NAMESPACE = "database";
     static final String TEST_NAMESPACE = "test";
 
@@ -105,6 +103,6 @@ public class ExampleTest {
     }
 
     private static void waitForNamespaceDeletion(KubernetesClient k8sClient, String namespace) {
-        k8sClient.namespaces().withName(TEST_NAMESPACE).waitUntilCondition(Objects::isNull, 4, TimeUnit.MINUTES);
+        k8sClient.namespaces().withName(namespace).waitUntilCondition(Objects::isNull, 4, TimeUnit.MINUTES);
     }
 }
