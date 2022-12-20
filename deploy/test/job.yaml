@@ -5,6 +5,7 @@ metadata:
 spec:
   template:
     spec:
+      serviceAccountName: test
       containers:
         - name: test
           image: localhost:5000/test
