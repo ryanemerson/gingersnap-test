@@ -63,7 +63,7 @@ jobs:
       uses: docker/build-push-action@v3
       with:
         context: ./test
-        file: src/test/docker/Dockerfile.jvm
+        file: test/src/test/docker/Dockerfile.jvm
         push: true
         tags: localhost:5000/test
 
